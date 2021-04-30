@@ -1,9 +1,9 @@
-# VPE FFmpeg Plugin User Guide
+# Libvpe FFmpeg Plugin User Guide
 
 # Content
 * [1.Introducing](#1.Introducing)
     * [Plugin Summary](#Plugin-Summary)
-    * [Install VPE](#Install-VPE)
+    * [Install libvpe](#Install-libvpe)
     * [Install FFmpeg](#Install-FFmpeg)
     * [Run FFmpeg](#Run-FFmpeg)
 * [2.Plugin Overall](#2.Plugin-Overall)
@@ -35,13 +35,13 @@
 
 # 1.Introducing
 
-This project is VPE plugin development trunk, it keep synced with FFmpeg master branch.
+This project is libvpe plugin development trunk, it keep synced with FFmpeg master branch.
 
 ## 1.1 Plugin Summary
 
 | Plugin | Type| Comments| Capbilities|
 |---------------|---------|---------------------------------------------------------------------------------------------------------------|----------------------------------------------------|
-| vpe | device| FFmpeg device which be used by parameter “-init_hw_device”, for example “ffmpeg vpe=dev0:/dev/transcoder0” ||
+| libvpe | device| FFmpeg device which be used by parameter “-init_hw_device”, for example “ffmpeg libvpe=dev0:/dev/transcoder0” ||
 | h264enc_vpe| encoder | H264 hardware encoder interface | Maximum 4K 60Hz, High 10 Profile, levels 1 - 5.2 |
 | hevcenc_vpe| encoder | HEVC hardware encoder interface | Maximum 4K 60Hz, Main 10 Profile, levels 5.1|
 | vp9enc_vpe | encoder | VP9 hardware encoder interface| Maximum 4K 60Hz Profile 2 (10-bit)|
@@ -51,62 +51,65 @@ This project is VPE plugin development trunk, it keep synced with FFmpeg master 
 | vpe_pp | filter| Post Processing Filter| Upload raw data to hardware encoders, and doing the video downscaling, <br>Suppported raw data format:<br> YUV420P <br> YUV422P<br> NV12<br> NV21<br> YUV420P10LE<br>YUV420P10BE<br>YUV422P10LE<br>YUV422P10BE<br>P010LE<br>P010BE<br>RGB24<br>BGR24<br>ARGB<br>RGBA<br>ABGR<br>BGRA<br>|
 | spliter_vpe| filter| Spliter | Spliter input video to Maximum 4 paths |
 
-## Install VPE
-1. Install VPE supported hardware like Seirios to your computer;
-2. Download VPE from github, or unzip vpe from release package to folder "vpe".
+Below is the diagram:
+
+![libvpe Plugin Diagram](https://raw.githubusercontent.com/emergetech0/libvpe/master/doc/vpe.svg)
+## Install libvpe
+1. Install libvpe supported hardware like Seirios to your computer;
+2. Download libvpe from github, or unzip libvpe from release package to folder "libvpe".
 3. Config tollchain:
     * If you are doing cross-compiling, please run ./configure to config tollchain related setting.
 
     ```bash
-    vpe]$ ./configure --arch=aarch64 --cross=aarch64-linux-gnu- --sysroot=toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc --kernel=/work/imx8mmevk-poky-linux/linux-imx/4.19.35-r0/build
+    libvpe]$ ./configure --arch=aarch64 --cross=aarch64-linux-gnu- --sysroot=toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc --kernel=/work/imx8mmevk-poky-linux/linux-imx/4.19.35-r0/build
 
     arch=aarch64
     cross=aarch64-linux-gnu-
     sysroot=/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc
     kernel=/work/imx8mmevk-poky-linux/linux-imx/4.19.35-r0/build
     debug=n
-    Create VPE build config file successfully!
+    Create libvpe build config file successfully!
 
     ## lunch the config file
-    vpe]$ . config.mk
+    libvpe]$ . config.mk
     ```
 
     * if you are not doing cross-compiling, then you can skip this step.
-4. Build VPE:
+4. Build libvpe:
     ```bash
-    vpe]$ make
+    libvpe]$ make
     ```
 
-5. Build and install VPE driver:
+5. Build and install libvpe driver:
     ```bash
-    vpe]$ sudo make drivers
+    libvpe]$ sudo make drivers
     ```
 
-6. Install VPE:
-    * All of the VPE output files will be copied to vpe/package;
-    * For non-cross build, the VPE lib will be installed to "$installpath" folder which was specified by "./configure --installpath="; if "$installpath" is not set, then the VPE will be installed to your system folder;
-    * For cross build, the VPE lib will be installed to "$installpath" folder which was specified by "./configure --installpath="; if $installpath is not set, then the VPE will not be installed.
+6. Install libvpe:
+    * All of the libvpe output files will be copied to libvpe/package;
+    * For non-cross build, the libvpe lib will be installed to "$installpath" folder which was specified by "./configure --installpath="; if "$installpath" is not set, then the libvpe will be installed to your system folder;
+    * For cross build, the libvpe lib will be installed to "$installpath" folder which was specified by "./configure --installpath="; if $installpath is not set, then the libvpe will not be installed.
 
     ```bash
-    vpe]$ sudo make install
+    libvpe]$ sudo make install
     ```
 ## Install FFmpeg
 
 1. Get FFmpeg source code:
-   Download FFmpeg which support VPE from github, or unzip ffmpeg package from release package to folder "ffmpeg";
+   Download FFmpeg which support libvpe from github, or unzip ffmpeg package from release package to folder "ffmpeg";
 
 2. Build and install FFmpeg
     ```bash
     # cd ffmpeg
-    ffmpeg]$ sudo ldconfig ## only need after VPE first installation
-    ffmpeg]$ sudo depmod ## only need after VPE first installation
-    ffmpeg]$ ./configure --pkg-config=true --enable-vpe --extra-ldflags="-L/usr/lib/vpe" --extra-libs="-lvpi"
+    ffmpeg]$ sudo ldconfig ## only need after libvpe first installation
+    ffmpeg]$ sudo depmod ## only need after libvpe first installation
+    ffmpeg]$ ./configure --pkg-config=true --enable-libvpe --extra-ldflags="-L/usr/lib/libvpe" --extra-libs="-lvpi"
     ffmpeg]$ make -j8
     ffmpeg]$ sudo make install
     ```
 ## Run FFmpeg
 ```bash
-ffmpeg]$ ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -c:v h264_vpe -transcode 1 \
+ffmpeg]$ ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -c:v h264_vpe -transcode 1 \
 -i ${INPUT_FILE_H264} -c:v h264enc_vpe out0.h264
 ```
 
@@ -118,11 +121,11 @@ Get more examples:[Transcoding](#Transcoding), [Decoding Only](#Decoding-Only), 
 | Option | Sub Option | Type | Description| Range| Default Value |
 |------------|------------|--------|--------------------------------------------|----------------------|---------------|
 | priority ||string | Priority of codec, live priority is higher than vod | live,vod | vod |
-| vpeloglevel ||int| Set the VPE log level. <br>0:disable<br>3:error<br>4:warning <br>5:information<br>6:debug<br>7:verbose | 0-9 |
+| vpeloglevel ||int| Set the libvpe log level. <br>0:disable<br>3:error<br>4:warning <br>5:information<br>6:debug<br>7:verbose | 0-9 |
 
 Example：
     ```bash
-    ffmpeg -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=live,vpeloglevel=0
+    ffmpeg -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=live,vpeloglevel=0
     ```
 ## Decoder
 | Option| Sub Option | Type | Description| Range | Default Value|
@@ -134,7 +137,7 @@ Example：
 Example：
 Below example will do hevc->h264 transcoding and output 2 streams: one is orignal resolution h264 stream, the second one is 640x360 h264 stream.
 ```bash
-ffmpeg]$ ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v h264enc_vpe out0.h264 -map '[out1]' -c:v h264enc_vpe out1.h264
+ffmpeg]$ ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v h264enc_vpe out0.h264 -map '[out1]' -c:v h264enc_vpe out1.h264
 ```
 
 #### "low_res" formats
@@ -187,7 +190,7 @@ command line example please refer [Downscaling First Pass](#Downscaling-First-Pa
 | -force_idr| | int| transcoding case only. If this flag is set, then the I frames position will keep same with input stream. <br>Range: 0 = disable; 1 = enable<br>Default: 0|
 | -preset | | string | Encoding preset.<br>Range:superfast/fast/medium/slow/superslow<br>Default: fast|
 | -enc_params | | | |
-||low_delay | int| Software level latency control flag. if it's set to 1, then VPE will works in single thread mode, in this mode the overall devely is around 3ms. Otherwise VPE works in multi-threads mode, in this case delay can be >30ms. 1 means enable low lantency mode.<br>Range: 0 = disable low delay mode; 1 = enable low delay mode<br>Default: 0 |
+||low_delay | int| Software level latency control flag. if it's set to 1, then libvpe will works in single thread mode, in this mode the overall devely is around 3ms. Otherwise libvpe works in multi-threads mode, in this case delay can be >30ms. 1 means enable low lantency mode.<br>Range: 0 = disable low delay mode; 1 = enable low delay mode<br>Default: 0 |
 ||intra_pic_rate| int| I frame interval in frames. If intra_pic_rate and force_idr are not specified, then there will be only one I frame be encoded. <br>Range: if lookahead_depth=0: [0...INT_MAX]; if lookahead_depth>0: [2...INT_MAX]<br>Default: 0|
 ||bitrate_window | int| Bitrate window length in frames.<br>Range: [1...300]<br>Default: if intra_pic_rate is not set=150; otherwise=intra_pic_rate|
 ||intra_qp_delta| int| Delta value added to the Intra frame QP. Min/Max range checking still applies. Can be used to lower the Intra picture encoded size (higher QP) or to increase Intra quality relative to the Inter pictures (lower QP) to get rid of intra flashing. <br>Range: [-51...51] <br>Default: -5|
@@ -258,7 +261,7 @@ Example:
 | -profile:v | | int| Encoder profile.<br>Range:  [0...3] <br>Default: 0|
 | -preset | | string | Encoding preset.<br>Range: superfast/fast/medium/slow/superslow<br>Default: fast |
 | -enc_params
-| |low_delay | int| Software level latency control flag. if it's set to 1, then VPE will works in single thread mode, in this mode the overall devely is around 3ms. Otherwise VPE works in multi-threads mode, in this case delay can be >30ms. <br>Range: 0 = disable low delay mode; 1 = enable low delay mode<br>Default: 0 |
+| |low_delay | int| Software level latency control flag. if it's set to 1, then libvpe will works in single thread mode, in this mode the overall devely is around 3ms. Otherwise libvpe works in multi-threads mode, in this case delay can be >30ms. <br>Range: 0 = disable low delay mode; 1 = enable low delay mode<br>Default: 0 |
 | | effort| int| Encoder effort level.<br>Range: [0...5]<br> 0 - fastest <br>5 - best quality<br>Default: 0|
 | | lag_in_frames | int| Number of frames to lag. Up to 25.<br>Range: [0...25]<br>Default: 7|
 | | passes| int| Number of passes.<br>Range: [1...2]<br>Default: 1|
@@ -319,79 +322,102 @@ Note: low_res is almost same which defined in [decoder filter](#Decoder), the on
 
 ## Transcoding
 
+One Output Diagram:
+
+![](https://raw.githubusercontent.com/emergetech0/libvpe/master/doc/transcoding_one_output.svg)
+
+Four Output Diagram:
+
+![](https://raw.githubusercontent.com/emergetech0/libvpe/master/doc/transcoding_four_outputs.svg)
+
 | Case | Target | Source | Output | 2 Pass | Command Line Example|
 |------|--------|--------|------------|----------|------------------------------------------------------------------------------------------------------------------|
 | ID | Format | Format | Numbers| Encoding | |
-| 1| h264 | h264 | 1| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -i ${INPUT_FILE_H264} -c:v h264enc_vpe -preset fast -b:v 10000000 out0.h264|
-| 2| h264 | h264 | 2| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v h264enc_vpe -preset fast -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset fast -b:v 5000000 out1.h264|
-| 3| h264 | hevc | 3| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v h264enc_vpe -preset fast -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset fast -b:v 5000000 out1.h264 -map '[out2]' -c:v h264enc_vpe -preset fast -b:v 3000000 out2.h264 |
-| 4| h264 | hevc | 4| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v h264enc_vpe -preset fast -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset fast -b:v 5000000 out1.h264 -map '[out2]' -c:v h264enc_vpe -preset fast -b:v 3000000 out2.h264 -map '[out3]' -c:v h264enc_vpe -preset fast -b:v 500000 out3.h264|
-| 5| h264 | vp9| 1| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -i ${INPUT_FILE_VP9} -c:v h264enc_vpe -preset fast -b:v 10000000 out0.h264 |
-| 6| h264 | vp9| 2| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v h264enc_vpe -preset fast -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset fast -b:v 5000000 out1.h264|
-| 7| hevc | h264 | 3| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v hevcenc_vpe -preset fast -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset fast -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset fast -b:v 3000000 out2.hevc |
-| 8| hevc | h264 | 4| N|ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v hevcenc_vpe -preset fast -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset fast -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset fast -b:v 3000000 out2.hevc -map '[out3]' -c:v hevcenc_vpe -preset fast -b:v 500000 out3.hevc |
-| 9| hevc | hevc | 1| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -i ${INPUT_FILE_HEVC} -c:v hevcenc_vpe -preset fast -b:v 10000000 out0.hevc|
-| 10 | hevc | hevc | 2| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v hevcenc_vpe -preset fast -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset fast -b:v 5000000 out1.hevc|
-| 11 | hevc | vp9| 3| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v hevcenc_vpe -preset fast -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset fast -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset fast -b:v 3000000 out2.hevc |
-| 12 | hevc | vp9| 4| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v hevcenc_vpe -preset fast -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset fast -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset fast -b:v 3000000 out2.hevc -map '[out3]' -c:v hevcenc_vpe -preset fast -b:v 500000 out3.hevc|
-| 13 | vp9| h264 | 1| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -i ${INPUT_FILE_H264} -c:v vp9enc_vpe -preset fast -b:v 10000000 out0.ivf|
-| 14 |||2| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "2:(360x640)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v vp9enc_vpe -preset fast -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset fast -b:v 5000000 out1.ivf|
-| 15 | vp9| hevc | 3| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v vp9enc_vpe -preset fast -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset fast -b:v 5000000 out1.ivf -map '[out2]' -c:v vp9enc_vpe -preset fast -b:v 3000000 out2.ivf |
-| 16 | vp9| hevc | 4| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v vp9enc_vpe -preset fast -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset fast -b:v 5000000 out1.ivf -map '[out2]' -c:v vp9enc_vpe -preset fast -b:v 3000000 out2.ivf -map '[out3]' -c:v vp9enc_vpe -preset fast -b:v 500000 out3.ivf|
-| 17 | vp9| vp9| 1| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -i ${INPUT_FILE_VP9} -c:v vp9enc_vpe -preset fast -b:v 10000000 out0.ivf|
-| 18 | vp9| vp9| 2| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v vp9enc_vpe -preset fast -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset fast -b:v 5000000 out1.ivf|
-| 19 | h264 | h264 | 1| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -i ${INPUT_FILE_H264} -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264|
-| 20 | h264 | h264 | 2| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset medium -b:v 5000000 out1.h264|
-| 21 | h264 | hevc | 3| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset medium -b:v 5000000 out1.h264 -map '[out2]' -c:v h264enc_vpe -preset medium -b:v 3000000 out2.h264 |
-| 22 | h264 | hevc | 4| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset medium -b:v 5000000 out1.h264 -map '[out2]' -c:v h264enc_vpe -preset medium -b:v 3000000 out2.h264 -map '[out3]' -c:v h264enc_vpe -preset medium -b:v 500000 out3.h264|
-| 23 | h264 | vp9| 1| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -i ${INPUT_FILE_VP9} -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264|
-| 24 | h264 | vp9| 2| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset medium -b:v 5000000 out1.h264|
-| 25 | hevc | h264 | 3| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset medium -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset medium -b:v 3000000 out2.hevc |
-| 26 | hevc | h264 | 4| Y|ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset medium -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset medium -b:v 3000000 out2.hevc -map '[out3]' -c:v hevcenc_vpe -preset medium -b:v 500000 out3.hevc |
-| 27 | hevc | hevc | 1| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -i ${INPUT_FILE_HEVC} -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc|
-| 28 | hevc | hevc | 2| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset medium -b:v 5000000 out1.hevc|
-| 29 | hevc | vp9| 3| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset medium -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset medium -b:v 3000000 out2.hevc |
-| 30 | hevc | vp9| 4| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset medium -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset medium -b:v 3000000 out2.hevc -map '[out3]' -c:v hevcenc_vpe -preset medium -b:v 500000 out3.hevc|
-| 31 | vp9| h264 | 1| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -i ${INPUT_FILE_H264} -c:v vp9enc_vpe -preset medium -b:v 10000000 out0.ivf|
-| 32 | vp9| h264 | 2| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "2:(360x640)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v vp9enc_vpe -preset medium -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset medium -b:v 5000000 out1.ivf|
-| 33 | vp9| hevc | 3| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v vp9enc_vpe -preset medium -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset medium -b:v 5000000 out1.ivf -map '[out2]' -c:v vp9enc_vpe -preset medium -b:v 3000000 out2.ivf |
-| 34 | vp9| hevc | 4| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v vp9enc_vpe -preset medium -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset medium -b:v 5000000 out1.ivf -map '[out2]' -c:v vp9enc_vpe -preset medium -b:v 3000000 out2.ivf -map '[out3]' -c:v vp9enc_vpe -preset medium -b:v 500000 out3.ivf|
-| 35 | vp9| vp9| 1| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -i ${INPUT_FILE_VP9} -c:v vp9enc_vpe -preset medium -b:v 10000000 out0.ivf|
-| 36 | vp9| vp9| 2| Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v vp9enc_vpe -preset medium -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset medium -b:v 5000000 out1.ivf|
-| 37 | VP9| HEVC | 1| N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "2:(d2)" -r 30 -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -f null /dev/null -map '[out1]' -c:v vp9enc_vpe -preset medium -b:v 5000000 out1.ivf
+| 1| h264 | h264 | 1| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -i ${INPUT_FILE_H264} -c:v h264enc_vpe -preset fast -b:v 10000000 out0.h264|
+| 2| h264 | h264 | 2| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v h264enc_vpe -preset fast -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset fast -b:v 5000000 out1.h264|
+| 3| h264 | hevc | 3| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v h264enc_vpe -preset fast -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset fast -b:v 5000000 out1.h264 -map '[out2]' -c:v h264enc_vpe -preset fast -b:v 3000000 out2.h264 |
+| 4| h264 | hevc | 4| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v h264enc_vpe -preset fast -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset fast -b:v 5000000 out1.h264 -map '[out2]' -c:v h264enc_vpe -preset fast -b:v 3000000 out2.h264 -map '[out3]' -c:v h264enc_vpe -preset fast -b:v 500000 out3.h264|
+| 5| h264 | vp9| 1| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -i ${INPUT_FILE_VP9} -c:v h264enc_vpe -preset fast -b:v 10000000 out0.h264 |
+| 6| h264 | vp9| 2| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v h264enc_vpe -preset fast -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset fast -b:v 5000000 out1.h264|
+| 7| hevc | h264 | 3| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v hevcenc_vpe -preset fast -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset fast -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset fast -b:v 3000000 out2.hevc |
+| 8| hevc | h264 | 4| N|ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v hevcenc_vpe -preset fast -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset fast -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset fast -b:v 3000000 out2.hevc -map '[out3]' -c:v hevcenc_vpe -preset fast -b:v 500000 out3.hevc |
+| 9| hevc | hevc | 1| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -i ${INPUT_FILE_HEVC} -c:v hevcenc_vpe -preset fast -b:v 10000000 out0.hevc|
+| 10 | hevc | hevc | 2| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v hevcenc_vpe -preset fast -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset fast -b:v 5000000 out1.hevc|
+| 11 | hevc | vp9| 3| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v hevcenc_vpe -preset fast -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset fast -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset fast -b:v 3000000 out2.hevc |
+| 12 | hevc | vp9| 4| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v hevcenc_vpe -preset fast -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset fast -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset fast -b:v 3000000 out2.hevc -map '[out3]' -c:v hevcenc_vpe -preset fast -b:v 500000 out3.hevc|
+| 13 | vp9| h264 | 1| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -i ${INPUT_FILE_H264} -c:v vp9enc_vpe -preset fast -b:v 10000000 out0.ivf|
+| 14 |||2| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "2:(360x640)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v vp9enc_vpe -preset fast -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset fast -b:v 5000000 out1.ivf|
+| 15 | vp9| hevc | 3| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v vp9enc_vpe -preset fast -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset fast -b:v 5000000 out1.ivf -map '[out2]' -c:v vp9enc_vpe -preset fast -b:v 3000000 out2.ivf |
+| 16 | vp9| hevc | 4| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v vp9enc_vpe -preset fast -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset fast -b:v 5000000 out1.ivf -map '[out2]' -c:v vp9enc_vpe -preset fast -b:v 3000000 out2.ivf -map '[out3]' -c:v vp9enc_vpe -preset fast -b:v 500000 out3.ivf|
+| 17 | vp9| vp9| 1| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -i ${INPUT_FILE_VP9} -c:v vp9enc_vpe -preset fast -b:v 10000000 out0.ivf|
+| 18 | vp9| vp9| 2| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v vp9enc_vpe -preset fast -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset fast -b:v 5000000 out1.ivf|
+| 19 | h264 | h264 | 1| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -i ${INPUT_FILE_H264} -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264|
+| 20 | h264 | h264 | 2| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset medium -b:v 5000000 out1.h264|
+| 21 | h264 | hevc | 3| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset medium -b:v 5000000 out1.h264 -map '[out2]' -c:v h264enc_vpe -preset medium -b:v 3000000 out2.h264 |
+| 22 | h264 | hevc | 4| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset medium -b:v 5000000 out1.h264 -map '[out2]' -c:v h264enc_vpe -preset medium -b:v 3000000 out2.h264 -map '[out3]' -c:v h264enc_vpe -preset medium -b:v 500000 out3.h264|
+| 23 | h264 | vp9| 1| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -i ${INPUT_FILE_VP9} -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264|
+| 24 | h264 | vp9| 2| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset medium -b:v 5000000 out1.h264|
+| 25 | hevc | h264 | 3| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset medium -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset medium -b:v 3000000 out2.hevc |
+| 26 | hevc | h264 | 4| Y|ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset medium -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset medium -b:v 3000000 out2.hevc -map '[out3]' -c:v hevcenc_vpe -preset medium -b:v 500000 out3.hevc |
+| 27 | hevc | hevc | 1| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -i ${INPUT_FILE_HEVC} -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc|
+| 28 | hevc | hevc | 2| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset medium -b:v 5000000 out1.hevc|
+| 29 | hevc | vp9| 3| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset medium -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset medium -b:v 3000000 out2.hevc |
+| 30 | hevc | vp9| 4| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset medium -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset medium -b:v 3000000 out2.hevc -map '[out3]' -c:v hevcenc_vpe -preset medium -b:v 500000 out3.hevc|
+| 31 | vp9| h264 | 1| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -i ${INPUT_FILE_H264} -c:v vp9enc_vpe -preset medium -b:v 10000000 out0.ivf|
+| 32 | vp9| h264 | 2| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -transcode 1 -low_res "2:(360x640)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v vp9enc_vpe -preset medium -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset medium -b:v 5000000 out1.ivf|
+| 33 | vp9| hevc | 3| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v vp9enc_vpe -preset medium -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset medium -b:v 5000000 out1.ivf -map '[out2]' -c:v vp9enc_vpe -preset medium -b:v 3000000 out2.ivf |
+| 34 | vp9| hevc | 4| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v vp9enc_vpe -preset medium -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset medium -b:v 5000000 out1.ivf -map '[out2]' -c:v vp9enc_vpe -preset medium -b:v 3000000 out2.ivf -map '[out3]' -c:v vp9enc_vpe -preset medium -b:v 500000 out3.ivf|
+| 35 | vp9| vp9| 1| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -i ${INPUT_FILE_VP9} -c:v vp9enc_vpe -preset medium -b:v 10000000 out0.ivf|
+| 36 | vp9| vp9| 2| Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -transcode 1 -low_res "2:(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -c:v vp9enc_vpe -preset medium -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset medium -b:v 5000000 out1.ivf|
+| 37 | VP9| HEVC | 1| N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -transcode 1 -low_res "2:(d2)" -r 30 -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=2[out0][out1]' -map '[out0]' -f null /dev/null -map '[out1]' -c:v vp9enc_vpe -preset medium -b:v 5000000 out1.ivf
 
 ## Decoding Only
+
+One Output Diagram:
+
+![](https://raw.githubusercontent.com/emergetech0/libvpe/master/doc/decoding_one_output.svg)
+
+Four Output Diagram:
+
+![](https://raw.githubusercontent.com/emergetech0/libvpe/master/doc/decoding_four_output.svg)
 
 | Case | Target | Source | Output| 2 Pass | Command Line Example |
 |------|--------|--------|---------|----------|-------|
 | ID | Format | Format | Numbers | Encoding ||
-| 38 | nv12 | h264 | 1 | NA | ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -i ${INPUT_FILE_H264} -filter_complex 'hwdownload,format=nv12' out0.yuv  |
-| 39 | nv12 | h264 | 4 | NA | ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=4[1][2][3][4],[1]hwdownload,format=nv12[a],[2]hwdownload,format=nv12[b],[3]hwdownload,format=nv12[c],[4]hwdownload,format=nv12[d]' -map '[a]' out0.yuv -map '[b]' out1.yuv -map '[c]' out2.yuv -map '[d]' out3.yuv |
-| 40 | nv12 | hevc | 4 | NA | ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=4[1][2][3][4],[1]hwdownload,format=nv12[a],[2]hwdownload,format=nv12[b],[3]hwdownload,format=nv12[c],[4]hwdownload,format=nv12[d]' -map '[a]' out0.yuv -map '[b]' out1.yuv -map '[c]' out2.yuv -map '[d]' out3.yuv |
-| 41 | nv12 | vp9| 4 | NA | ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=4[1][2][3][4],[1]hwdownload,format=nv12[a],[2]hwdownload,format=nv12[b],[3]hwdownload,format=nv12[c],[4]hwdownload,format=nv12[d]' -map '[a]' out0.yuv -map '[b]' out1.yuv -map '[c]' out2.yuv -map '[d]' out3.yuv |
+| 38 | nv12 | h264 | 1 | NA | ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -i ${INPUT_FILE_H264} -filter_complex 'hwdownload,format=nv12' out0.yuv  |
+| 39 | nv12 | h264 | 4 | NA | ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v h264_vpe -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=4[1][2][3][4],[1]hwdownload,format=nv12[a],[2]hwdownload,format=nv12[b],[3]hwdownload,format=nv12[c],[4]hwdownload,format=nv12[d]' -map '[a]' out0.yuv -map '[b]' out1.yuv -map '[c]' out2.yuv -map '[d]' out3.yuv |
+| 40 | nv12 | hevc | 4 | NA | ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v hevc_vpe -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_HEVC} -filter_complex 'spliter_vpe=outputs=4[1][2][3][4],[1]hwdownload,format=nv12[a],[2]hwdownload,format=nv12[b],[3]hwdownload,format=nv12[c],[4]hwdownload,format=nv12[d]' -map '[a]' out0.yuv -map '[b]' out1.yuv -map '[c]' out2.yuv -map '[d]' out3.yuv |
+| 41 | nv12 | vp9| 4 | NA | ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -c:v vp9_vpe -low_res "4:(1920x1080)(1280x720)(640x360)" -i ${INPUT_FILE_VP9} -filter_complex 'spliter_vpe=outputs=4[1][2][3][4],[1]hwdownload,format=nv12[a],[2]hwdownload,format=nv12[b],[3]hwdownload,format=nv12[c],[4]hwdownload,format=nv12[d]' -map '[a]' out0.yuv -map '[b]' out1.yuv -map '[c]' out2.yuv -map '[d]' out3.yuv |
 
 ## Encoding Only
+One Output Diagram:
+
+![](https://raw.githubusercontent.com/emergetech0/libvpe/master/doc/encoding_one_output.svg)
+
+Four Output Diagram:
+
+![](https://raw.githubusercontent.com/emergetech0/libvpe/master/doc/encoding_four_outputs.svg)
 | Case | Target | Source| Output| 2 Pass | Command Line Example|
 |------|--------|---------|---------|----------|---|
 | ID | Format | Format| Numbers | Encoding | |
-| 42 | h264 | yuv420p | 1 | N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -s 1920x1080 -pix_fmt yuv420p -i ${INPUT_FILE_RAW_420P} -filter_complex 'vpe_pp' -c:v h264enc_vpe -preset superfast -b:v 10000000 out0.h264  |
-| 43 | h264 | yuv420p | 4 | N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -s 1920x1080 -pix_fmt yuv420p -i ${INPUT_FILE_RAW_420P} -filter_complex 'vpe_pp=outputs=4:low_res=(1920x1080)(1280x720)(640x360),spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v h264enc_vpe -preset superfast -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset superfast -b:v 5000000 out1.h264 -map '[out2]' -c:v h264enc_vpe -preset superfast -b:v 3000000 out2.h264 -map '[out3]' -c:v h264enc_vpe -preset superfast -b:v 500000 out3.h264 |
-| 44 | hevc | yuv420p | 4 | N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -s 1920x1080 -pix_fmt yuv420p -i ${INPUT_FILE_RAW_420P} -filter_complex 'vpe_pp=outputs=4:low_res=(1920x1080)(1280x720)(640x360),spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v hevcenc_vpe -preset superfast -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset superfast -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset superfast -b:v 3000000 out2.hevc -map '[out3]' -c:v hevcenc_vpe -preset superfast -b:v 500000 out3.hevc|
-| 45 | vp9| yuv420p | 4 | N| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -r 30 -s 1920x1080 -pix_fmt yuv420p -i ${INPUT_FILE_RAW_420P} -filter_complex 'vpe_pp=outputs=4:low_res=(1920x1080)(1280x720)(640x360),spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v vp9enc_vpe -preset superfast -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset superfast -b:v 5000000 out1.ivf -map '[out2]' -c:v vp9enc_vpe -preset superfast -b:v 3000000 out2.ivf -map '[out3]' -c:v vp9enc_vpe -preset superfast -b:v 500000 out3.ivf |
-| 46 | h264 | rgb24 | 4 | Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -r 30 -s 1920x1080 -pix_fmt rgb24 -i ${INPUT_FILE_RAW_RGB24} -filter_complex 'vpe_pp=outputs=4:low_res=(d2)(d4)(d8),spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset medium -b:v 5000000 out1.h264 -map '[out2]' -c:v h264enc_vpe -preset medium -b:v 3000000 out2.h264 -map '[out3]' -c:v h264enc_vpe -preset medium -b:v 500000 out3.h264|
-| 47 | hevc | abgr| 4 | Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -r 30 -s 1920x1080 -pix_fmt abgr -i ${INPUT_FILE_RAW_ABGR} -filter_complex 'vpe_pp=outputs=4:force10bit=1:low_res=(d2)(d4)(d8),spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset medium -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset medium -b:v 3000000 out2.hevc -map '[out3]' -c:v hevcenc_vpe -preset medium -b:v 500000 out3.hevc |
-| 48 | vp9| rgba| 4 | Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -r 30 -s 1920x1080 -pix_fmt rgba -i ${INPUT_FILE_RAW_RGBA} -filter_complex 'vpe_pp=outputs=4:low_res=(-1x1080)(-1x674)(-1x336),spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v vp9enc_vpe -preset slow -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset slow -b:v 5000000 out1.ivf -map '[out2]' -c:v vp9enc_vpe -preset slow -b:v 3000000 out2.ivf -map '[out3]' -c:v vp9enc_vpe -preset slow -b:v 500000 out3.ivf|
+| 42 | h264 | yuv420p | 1 | N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -s 1920x1080 -pix_fmt yuv420p -i ${INPUT_FILE_RAW_420P} -filter_complex 'vpe_pp' -c:v h264enc_vpe -preset superfast -b:v 10000000 out0.h264  |
+| 43 | h264 | yuv420p | 4 | N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -s 1920x1080 -pix_fmt yuv420p -i ${INPUT_FILE_RAW_420P} -filter_complex 'vpe_pp=outputs=4:low_res=(1920x1080)(1280x720)(640x360),spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v h264enc_vpe -preset superfast -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset superfast -b:v 5000000 out1.h264 -map '[out2]' -c:v h264enc_vpe -preset superfast -b:v 3000000 out2.h264 -map '[out3]' -c:v h264enc_vpe -preset superfast -b:v 500000 out3.h264 |
+| 44 | hevc | yuv420p | 4 | N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -s 1920x1080 -pix_fmt yuv420p -i ${INPUT_FILE_RAW_420P} -filter_complex 'vpe_pp=outputs=4:low_res=(1920x1080)(1280x720)(640x360),spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v hevcenc_vpe -preset superfast -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset superfast -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset superfast -b:v 3000000 out2.hevc -map '[out3]' -c:v hevcenc_vpe -preset superfast -b:v 500000 out3.hevc|
+| 45 | vp9| yuv420p | 4 | N| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -r 30 -s 1920x1080 -pix_fmt yuv420p -i ${INPUT_FILE_RAW_420P} -filter_complex 'vpe_pp=outputs=4:low_res=(1920x1080)(1280x720)(640x360),spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v vp9enc_vpe -preset superfast -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset superfast -b:v 5000000 out1.ivf -map '[out2]' -c:v vp9enc_vpe -preset superfast -b:v 3000000 out2.ivf -map '[out3]' -c:v vp9enc_vpe -preset superfast -b:v 500000 out3.ivf |
+| 46 | h264 | rgb24 | 4 | Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -r 30 -s 1920x1080 -pix_fmt rgb24 -i ${INPUT_FILE_RAW_RGB24} -filter_complex 'vpe_pp=outputs=4:low_res=(d2)(d4)(d8),spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264 -map '[out1]' -c:v h264enc_vpe -preset medium -b:v 5000000 out1.h264 -map '[out2]' -c:v h264enc_vpe -preset medium -b:v 3000000 out2.h264 -map '[out3]' -c:v h264enc_vpe -preset medium -b:v 500000 out3.h264|
+| 47 | hevc | abgr| 4 | Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -r 30 -s 1920x1080 -pix_fmt abgr -i ${INPUT_FILE_RAW_ABGR} -filter_complex 'vpe_pp=outputs=4:force10bit=1:low_res=(d2)(d4)(d8),spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v hevcenc_vpe -preset medium -b:v 10000000 out0.hevc -map '[out1]' -c:v hevcenc_vpe -preset medium -b:v 5000000 out1.hevc -map '[out2]' -c:v hevcenc_vpe -preset medium -b:v 3000000 out2.hevc -map '[out3]' -c:v hevcenc_vpe -preset medium -b:v 500000 out3.hevc |
+| 48 | vp9| rgba| 4 | Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 -r 30 -s 1920x1080 -pix_fmt rgba -i ${INPUT_FILE_RAW_RGBA} -filter_complex 'vpe_pp=outputs=4:low_res=(-1x1080)(-1x674)(-1x336),spliter_vpe=outputs=4[out0][out1][out2][out3]' -map '[out0]' -c:v vp9enc_vpe -preset slow -b:v 10000000 out0.ivf -map '[out1]' -c:v vp9enc_vpe -preset slow -b:v 5000000 out1.ivf -map '[out2]' -c:v vp9enc_vpe -preset slow -b:v 3000000 out2.ivf -map '[out3]' -c:v vp9enc_vpe -preset slow -b:v 500000 out3.ivf|
 
 ## Transcoding with parameters
 
 | Case | Target | Source | Output| 2 Pass | Command Line Example|
 |------|--------|--------|---------|----------|---------------------------------------------------------------------------------------------|
 | ID | Format | Format | Numbers | Encoding | |
-| 49 | h264 | h264 | 1 | Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -c:v h264_vpe -transcode 1 -i ${INPUT_FILE_H264} -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 10000000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out0.h264  |
-| 50 | h264 | h264 | 3 | Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -c:v h264_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 10000000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out0.h264 -map '[out1]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 5000000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out1.h264 -map '[out2]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 3000000 -enc_params "lookahead_depth=10:chroma_qp_offset='2':bitrate_window=180:intra_pic_rate=60" out2.h264 |
-| 51 | h264 | argb | 4 | Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -s 1920x1080 -pix_fmt argb -i ${INPUT_FILE_RAW_ARGB} -filter_complex "vpe_pp=outputs=4:force10bit=1:low_res=(1920x1080)(1280x720)(640x360),spliter_vpe=outputs=4[out0][out1][out2][out3]" -map '[out0]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 10000000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out0.h264 -map '[out1]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 5000000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out1.h264 -map '[out2]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 3000000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out2.h264 -map '[out3]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 500000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out3.h264 |
-| 52 | vp9| h264 | 3 | Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -c:v h264_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v vp9enc_vpe -b:v 10000000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out0.ivf -map '[out1]' -c:v vp9enc_vpe -b:v 5000000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out1.ivf -map '[out2]' -c:v vp9enc_vpe -b:v 3000000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out2.ivf |
-| 53 | vp9| nv12 | 4 | Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -s 1920x1080 -pix_fmt nv12 -i ${INPUT_FILE_RAW_NV12} -filter_complex "vpe_pp=outputs=4:low_res=(1920x1080)(1280x720)(640x360),spliter_vpe=outputs=4[out0][out1][out2][out3]" -map '[out0]' -c:v vp9enc_vpe -r 60 -b:v 10000000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out0.ivf -map '[out1]' -c:v vp9enc_vpe -b:v 5000000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out1.ivf -map '[out2]' -c:v vp9enc_vpe -b:v 3000000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out2.ivf -map '[out3]' -c:v vp9enc_vpe -b:v 500000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out3.ivf |
+| 49 | h264 | h264 | 1 | Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -c:v h264_vpe -transcode 1 -i ${INPUT_FILE_H264} -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 10000000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out0.h264  |
+| 50 | h264 | h264 | 3 | Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -c:v h264_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 10000000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out0.h264 -map '[out1]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 5000000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out1.h264 -map '[out2]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 3000000 -enc_params "lookahead_depth=10:chroma_qp_offset='2':bitrate_window=180:intra_pic_rate=60" out2.h264 |
+| 51 | h264 | argb | 4 | Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -s 1920x1080 -pix_fmt argb -i ${INPUT_FILE_RAW_ARGB} -filter_complex "vpe_pp=outputs=4:force10bit=1:low_res=(1920x1080)(1280x720)(640x360),spliter_vpe=outputs=4[out0][out1][out2][out3]" -map '[out0]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 10000000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out0.h264 -map '[out1]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 5000000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out1.h264 -map '[out2]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 3000000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out2.h264 -map '[out3]' -c:v h264enc_vpe -profile:v main -level 5.2 -b:v 500000 -enc_params "lookahead_depth=10:chroma_qp_offset=2:bitrate_window=180:intra_pic_rate=60" out3.h264 |
+| 52 | vp9| h264 | 3 | Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -c:v h264_vpe -transcode 1 -low_res "3:(1280x720)(640x360)" -i ${INPUT_FILE_H264} -filter_complex 'spliter_vpe=outputs=3[out0][out1][out2]' -map '[out0]' -c:v vp9enc_vpe -b:v 10000000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out0.ivf -map '[out1]' -c:v vp9enc_vpe -b:v 5000000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out1.ivf -map '[out2]' -c:v vp9enc_vpe -b:v 3000000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out2.ivf |
+| 53 | vp9| nv12 | 4 | Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -s 1920x1080 -pix_fmt nv12 -i ${INPUT_FILE_RAW_NV12} -filter_complex "vpe_pp=outputs=4:low_res=(1920x1080)(1280x720)(640x360),spliter_vpe=outputs=4[out0][out1][out2][out3]" -map '[out0]' -c:v vp9enc_vpe -r 60 -b:v 10000000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out0.ivf -map '[out1]' -c:v vp9enc_vpe -b:v 5000000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out1.ivf -map '[out2]' -c:v vp9enc_vpe -b:v 3000000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out2.ivf -map '[out3]' -c:v vp9enc_vpe -b:v 500000 -enc_params "ref_frame_scheme=4:lag_in_frames=18:passes=2:bitrate_window=60:effort=0:intra_pic_rate=60" out3.ivf |
 
 ## Downscaling First Pass
 
@@ -403,7 +429,7 @@ Transcoding case:
 | Case | Target | Source | Output| 2 Pass | Command Line Example |
 |------|--------|--------|---------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ID | Format | Format | Numbers | Encoding ||
-| 55 | h264 | hevc | 1 | Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -c:v hevc_vpe -transcode 1 -low_res "1:(d2)" -i ${INPUT_FILE_HEVC} -c:v h264enc_vpe-preset medium -b:v 10000000 out0.h264 |
+| 55 | h264 | hevc | 1 | Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -c:v hevc_vpe -transcode 1 -low_res "1:(d2)" -i ${INPUT_FILE_HEVC} -c:v h264enc_vpe-preset medium -b:v 10000000 out0.h264 |
 
 
 Encoding case:
@@ -412,7 +438,7 @@ Encoding case:
 | Case | Target | Source | Output| 2 Pass | Command Line Example |
 |------|--------|--------|---------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ID | Format | Format | Numbers | Encoding ||
-| 54 | h264 | hevc | 1 | Y| ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0-s 1920x1080 -pix_fmt yuv420p -i ${INPUT_FILE_RAW_420P} -filter_complex 'vpe_pp=low_res=(d2)' -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264
+| 54 | h264 | hevc | 1 | Y| ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0-s 1920x1080 -pix_fmt yuv420p -i ${INPUT_FILE_RAW_420P} -filter_complex 'vpe_pp=low_res=(d2)' -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264
 
 # 4.Online Typical Use Case
 ## Encoding h264 hevc with low latency
@@ -420,7 +446,7 @@ To enable low latency encoding, you need:
 * Select "superfast" preset;
 * Add "low_delay=1" in -enc_params;
 ```bash
-ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 \
+ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0,priority=vod,vpeloglevel=0 \
 -s 1280x720 -pix_fmt nv12 -i ~/work/stream/out1280x720p_nv12.yuv \
 -filter_complex 'vpe_pp' -c:v hevcenc_vpe -preset superfast \
 -enc_params "low_delay=1" -b:v 10000000 out0.h264
@@ -432,20 +458,20 @@ Press [q] to stop, [?] for help
 Output #0, h264, to 'out0.h264':
   Metadata:
     encoder         : Lavf58.64.100
-    Stream #0:0: Video: hevc (hevcenc_vpe), vpe(progressive), 1280x720, q=2-31, 10000 kb/s, 25 fps, 25 tbn, 25 tbc
+    Stream #0:0: Video: hevc (hevcenc_vpe), libvpe(progressive), 1280x720, q=2-31, 10000 kb/s, 25 fps, 25 tbn, 25 tbc
     Metadata:
       encoder         : Lavc58.112.101 hevcenc_vpe
 frame=  102 fps= 37 q=-0.0 latency=  5ms Lsize=    2643kB time=00:00:03.76 bitrate=5759.1kbits/s speed=1.35x
 
 ```
-You can get **"latency=  xms"** in the FFmpeg log, the x means the overall latency of the VPE encoding.
+You can get **"latency=  xms"** in the FFmpeg log, the x means the overall latency of the libvpe encoding.
 
 ## Camera low latency streaming with dynamic bitrate fps resolution change
 - Add **"pic_rc=1:pic_rc_config=rc.cfg"** into -enc_params to enable dynamic bitrate/fps change, then user can put target bitrate/fps in rc.cfg;
 - Enable **"vpe_pp"** to enable dynamic resolution change function, then user can put target resolution in rc.cfg;
 - Add **"low_delay=1"** into -enc_params, and select **"superfast"** preset to enable low latency mode;
 ```bash
-sudo ffmpeg -y -report -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -vsync 0 \
+sudo ffmpeg -y -report -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -vsync 0 \
 -i /dev/video0 filter_complex "format=nv12,vpe_pp" \
 -c:v hevcenc_vpe -preset superfast -b:v 2000000 \
 -enc_params "low_delay=1:intra_pic_rate=5:pic_rc=1:pic_rc_config=rc.cfg" \
@@ -478,7 +504,7 @@ ffplay -probesize 32 -analyzeduration 0 -sync ext rtp://10.10.3.88:9999
 You need to setup RTMP streaming server first
 ###### Streaming:
 ```bash
-ffmpeg -y -re -init_hw_device vpe=dev0:/dev/transcoder0 -c:v h264_vpe \
+ffmpeg -y -re -init_hw_device libvpe=dev0:/dev/transcoder0 -c:v h264_vpe \
 -transcode 1 -i http://ivi.bupt.edu.cn/hls/cctv5phd.m3u8 \
 -c:v h264enc_vpe -preset medium -b:v 3000000 -level 5.1 -profile:v high -c:a copy
 -f flv rtmp://10.10.3.88:1935/live/livestream
@@ -492,7 +518,7 @@ ffplay rtmp://10.10.3.88:1935/live/livestream
 You need to setup RTMP streaming server first
 ###### Streaming:
 ```bash
-ffmpeg -y -re -init_hw_device vpe=dev0:/dev/transcoder0 -c:v hevc_vpe -transcode 1 \
+ffmpeg -y -re -init_hw_device libvpe=dev0:/dev/transcoder0 -c:v hevc_vpe -transcode 1 \
 -low_res "4:(1920x1080)(1280x720)(640x360)" -i ~/work/stream/LaLaLand_cafe_4K.mkv \
 -filter_complex 'spliter_vpe=outputs=4[out0][out1][out2][out3]' \
 -map '[out0]' -c:v h264enc_vpe -preset fast -b:v 10000000 -map 0:a -f flv rtmp://10.10.3.88:1935/live/10M  \
@@ -511,7 +537,7 @@ ffplay rtmp://10.10.3.88:1935/live/500k
 ## HDR10 Encoding
 
 ```bash
-ffmpeg -y -report -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 \
+ffmpeg -y -report -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 \
 -s 3840x2160 -pix_fmt yuv420p10le -i 4k10bithdr.yuv \
 -filter_complex "hwupload" -c:v hevcenc_vpe  \
 -color_primaries bt2020 -color_trc smpte2084 -colorspace bt2020nc \
@@ -526,7 +552,7 @@ light_level_en=1:max_content_light_level=1000:max_pic_average_light_level=640" 4
 encoder key parameters: -preset superfast
 Sample:
 ```bash
-ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -s 1920x1080 -pix_fmt yuv420p \
+ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -s 1920x1080 -pix_fmt yuv420p \
 -i ${INPUT_FILE_RAW_420P} -filter_complex 'vpe_pp' -c:v h264enc_vpe -preset superfast \
 -enc_params "low_delay=1" -b:v 10000000 out0.h264
 ```
@@ -537,7 +563,7 @@ Keywords:
 
 Sample:
 ```bash
-ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -c:v h264_vpe -transcode 1 \
+ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -c:v h264_vpe -transcode 1 \
 -i ${INPUT_FILE_H264} -c:v h264enc_vpe -preset superfast \
 -enc_params "low_delay=1" -b:v 10000000 out0.h264
 
@@ -550,7 +576,7 @@ Keywords:
 
 Sample:
 ```bash
-ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -s 1920x1080 -pix_fmt yuv420p \
+ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -s 1920x1080 -pix_fmt yuv420p \
 -i ${INPUT_FILE_RAW_420P} -filter_complex 'vpe_pp' -c:v h264enc_vpe -preset superslow \
 -enc_params "intra_pic_rate=60:gop_lowdelay=1" -b:v 10000000 out0.h264
 ```
@@ -562,7 +588,7 @@ Keywords:
 
 Sample:
 ```bash
-ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -c:v h264_vpe -transcode 1 \
+ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -c:v h264_vpe -transcode 1 \
 -i ${INPUT_FILE_H264} -c:v h264enc_vpe -preset -preset superslow \
 -enc_params "intra_pic_rate=60:gop_lowdelay=1" -b:v 10000000 out0.h264
 ```
@@ -574,7 +600,7 @@ Keywords:
 
 Sample:
 ```bash
-ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -s 1920x1080 -pix_fmt yuv420p \
+ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -s 1920x1080 -pix_fmt yuv420p \
 -i ${INPUT_FILE_RAW_420P} -filter_complex 'vpe_pp=low_res=(d2)' \
 -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264
 ```
@@ -585,7 +611,7 @@ Keywords:
 
 Sample:
 ```bash
-ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -c:v h264_vpe -low_res "1:(d2)" \
+ffmpeg -y -vsync 0 -init_hw_device libvpe=dev0:/dev/transcoder0 -c:v h264_vpe -low_res "1:(d2)" \
 -transcode 1 -i ${INPUT_FILE_H264}
 -c:v h264enc_vpe -preset medium -b:v 10000000 out0.h264
 ```
@@ -594,8 +620,8 @@ ffmpeg -y -vsync 0 -init_hw_device vpe=dev0:/dev/transcoder0 -c:v h264_vpe -low_
 Codecs and filters can select different hardware devices:
 
 ```bash
-ffmpeg -y -report -init_hw_device vpe=dev0:/dev/transcoder0 \
--init_hw_device vpe=dev1:/dev/transcoder3 \
+ffmpeg -y -report -init_hw_device libvpe=dev0:/dev/transcoder0 \
+-init_hw_device libvpe=dev1:/dev/transcoder3 \
 -hwaccel auto -hwaccel_device dev1 -c:v h264_vpe -i test.h264 \
 -filter_hw_device dev0 -filter_threads 4 -filter_complex_threads 4 \
 -filter_complex "hwdownload,format=nv12[0];[0]split[a][b];\
