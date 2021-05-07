@@ -102,8 +102,7 @@ Below is the diagram:
     ```bash
     # cd ffmpeg
     ffmpeg]$ sudo ldconfig ## only need after libvpe first installation
-    ffmpeg]$ sudo depmod ## only need after libvpe first installation
-    ffmpeg]$ ./configure --pkg-config=true --enable-libvpe --extra-ldflags="-L/usr/lib/libvpe" --extra-libs="-lvpi"
+    ffmpeg]$ ./configure --enable-vpe --extra-ldflags="-L/usr/lib/vpe" --extra-libs="-lvpi"
     ffmpeg]$ make -j8
     ffmpeg]$ sudo make install
     ```
